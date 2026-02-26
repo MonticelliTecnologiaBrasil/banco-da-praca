@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Layers, Wrench } from "lucide-react";
 
 const CTA = () => {
   return (
@@ -12,18 +12,24 @@ const CTA = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-2xl mx-auto"
+          className="max-w-3xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6 font-display">
-            Pronto para resolver seu problema?
+            Encontre a solução ideal para seu negócio
           </h2>
           <p className="text-primary-foreground/80 text-lg mb-10 leading-relaxed">
-            Entre em contato e descubra como o Banco da Praça pode transformar seu desafio em solução.
+            Explore nosso catálogo de soluções prontas ou descreva seu desafio e receba uma proposta personalizada.
           </p>
-          <button className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-secondary text-secondary-foreground font-semibold text-lg hover:opacity-90 transition-opacity">
-            Fale conosco
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-secondary text-secondary-foreground font-semibold text-lg hover:opacity-90 transition-opacity">
+              <Layers className="w-5 h-5" />
+              Ver catálogo
+            </button>
+            <button className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg border border-primary-foreground/30 text-primary-foreground font-semibold text-lg hover:bg-primary-foreground/10 transition-colors">
+              <Wrench className="w-5 h-5" />
+              Solicitar sob demanda
+            </button>
+          </div>
         </motion.div>
       </div>
     </section>
