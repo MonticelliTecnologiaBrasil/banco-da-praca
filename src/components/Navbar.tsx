@@ -16,9 +16,9 @@ const Navbar = () => {
           <a href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors">Serviços</a>
           <a href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors">Como funciona</a>
           <a href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors">PIX</a>
-          <button className="px-5 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
+          <a href="/auth" className="px-5 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
             Entrar
-          </button>
+          </a>
         </div>
 
         <button onClick={() => setOpen(!open)} className="md:hidden text-primary-foreground">
