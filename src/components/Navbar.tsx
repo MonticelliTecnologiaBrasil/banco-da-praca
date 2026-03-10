@@ -38,9 +38,9 @@ const Navbar = () => {
               <a href="#" className="text-sm text-primary-foreground/80">Serviços</a>
               <a href="#" className="text-sm text-primary-foreground/80">Como funciona</a>
               <a href="#" className="text-sm text-primary-foreground/80">PIX</a>
-              <button className="px-5 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-semibold w-full">
+              <a href="/auth" className="block px-5 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-semibold w-full text-center">
                 Entrar
-              </button>
+              </a>
             </div>
           </motion.div>
         )}
