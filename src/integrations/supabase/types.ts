@@ -44,6 +44,53 @@ export type Database = {
         }
         Relationships: []
       }
+      solution_plans: {
+        Row: {
+          billing_type: string
+          created_at: string
+          features: Json
+          id: string
+          is_popular: boolean
+          name: string
+          price_monthly: number | null
+          price_once: number | null
+          solution_id: string
+          sort_order: number
+        }
+        Insert: {
+          billing_type?: string
+          created_at?: string
+          features?: Json
+          id?: string
+          is_popular?: boolean
+          name: string
+          price_monthly?: number | null
+          price_once?: number | null
+          solution_id: string
+          sort_order?: number
+        }
+        Update: {
+          billing_type?: string
+          created_at?: string
+          features?: Json
+          id?: string
+          is_popular?: boolean
+          name?: string
+          price_monthly?: number | null
+          price_once?: number | null
+          solution_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_plans_solution_id_fkey"
+            columns: ["solution_id"]
+            isOneToOne: false
+            referencedRelation: "solutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       solution_requests: {
         Row: {
           admin_notes: string | null
@@ -83,6 +130,51 @@ export type Database = {
           updated_at?: string
           urgency?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      solutions: {
+        Row: {
+          category: string
+          created_at: string
+          features: Json
+          full_description: string
+          icon: string
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          short_description: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          features?: Json
+          full_description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          short_description?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          features?: Json
+          full_description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          short_description?: string
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
