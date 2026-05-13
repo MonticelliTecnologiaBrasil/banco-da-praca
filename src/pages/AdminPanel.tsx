@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,26 +46,26 @@ const AdminPanel = () => {
   }, [user, isAdmin]);
 
   const fetchRequests = async () => {
-    const { data } = await supabase
-      .from("solution_requests")
-      .select("*, profiles(full_name, email, company)")
-      .order("created_at", { ascending: false });
-    setRequests(data || []);
-    setLoadingReqs(false);
+    try {
+      const data = await api.admin.listRequests();
+      setRequests(data);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingReqs(false);
+    }
   };
 
   const handleUpdate = async (id: string) => {
-    const updates: any = {};
-    if (editStatus[id]) updates.status = editStatus[id];
-    if (editNotes[id] !== undefined) updates.admin_notes = editNotes[id];
-    updates.updated_at = new Date().toISOString();
-
-    const { error } = await supabase.from("solution_requests").update(updates).eq("id", id);
-    if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      await api.admin.updateRequest(id, {
+        status: editStatus[id] || undefined,
+        adminNotes: editNotes[id] !== undefined ? editNotes[id] : undefined,
+      });
       toast({ title: "Atualizado com sucesso!" });
       fetchRequests();
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
     }
   };
 
@@ -112,7 +112,7 @@ const AdminPanel = () => {
           <div className="grid gap-4">
             {requests.map((req) => {
               const isExpanded = expandedId === req.id;
-              const profile = req.profiles;
+              const profile = req.profile;
               const currentStatus = editStatus[req.id] || req.status;
               return (
                 <Card key={req.id} className="transition-shadow hover:shadow-md">
@@ -127,7 +127,7 @@ const AdminPanel = () => {
                           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </CardTitle>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {profile?.full_name || "Sem nome"} • {profile?.email} • {req.category} • {new Date(req.created_at).toLocaleDateString("pt-BR")}
+                          {profile?.fullName || "Sem nome"} • {profile?.email} • {req.category} • {new Date(req.createdAt).toLocaleDateString("pt-BR")}
                         </p>
                       </div>
                       <Badge variant={statusVariant[req.status] || "secondary"}>
@@ -146,7 +146,7 @@ const AdminPanel = () => {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="font-semibold text-foreground">Orçamento:</span>{" "}
-                          <span className="text-muted-foreground">{req.budget_range || "A definir"}</span>
+                          <span className="text-muted-foreground">{req.budgetRange || "A definir"}</span>
                         </div>
                         <div>
                           <span className="font-semibold text-foreground">Urgência:</span>{" "}
@@ -178,7 +178,7 @@ const AdminPanel = () => {
                           <label className="text-sm font-semibold text-foreground">Notas para o cliente:</label>
                           <Textarea
                             placeholder="Escreva uma resposta ou observações para o cliente..."
-                            value={editNotes[req.id] ?? req.admin_notes ?? ""}
+                            value={editNotes[req.id] ?? req.adminNotes ?? ""}
                             onChange={(e) => setEditNotes({ ...editNotes, [req.id]: e.target.value })}
                             maxLength={2000}
                           />

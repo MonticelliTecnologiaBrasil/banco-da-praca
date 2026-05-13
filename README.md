@@ -1,73 +1,87 @@
-# Welcome to your Lovable project
+# Banco da Praça — Frontend
 
-## Project info
+Plataforma para contratação de soluções de tecnologia. Catálogo de produtos, solicitações personalizadas e painel administrativo.
 
-**URL**: https://lovable.dev/projects/08033ca3-fa26-47f5-b1d8-4f0bc511b5b5
+## Stack
 
-## How can I edit this code?
+| Tecnologia | Versão |
+|---|---|
+| React | 18 |
+| TypeScript | 5.8 |
+| Vite | 5.4 |
+| Tailwind CSS | 3.4 |
+| shadcn/ui | Radix + Tailwind |
+| Framer Motion | 12 |
+| TanStack React Query | 5 |
 
-There are several ways of editing your application.
+## Pré-requisitos
 
-**Use Lovable**
+- Node.js 18+ (recomendado via [nvm](https://github.com/nvm-sh/nvm))
+- npm 9+
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/08033ca3-fa26-47f5-b1d8-4f0bc511b5b5) and start prompting.
+## Como Rodar
 
-Changes made via Lovable will be committed automatically to this repo.
+O frontend depende do backend rodando. Inicie os dois em terminais separados.
 
-**Use your preferred IDE**
+### 1. Backend
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+cd servicos-backend
+./run.sh
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+O backend sobe em `http://localhost:8080`.
 
-Follow these steps:
+### 2. Frontend
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+cd banco-da-praca
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O frontend sobe em `http://localhost:5173`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+> O Vite está configurado com CORS permitindo `localhost:5173` → `localhost:8080`.
+> Nenhum proxy ou configuração adicional é necessária.
 
-**Use GitHub Codespaces**
+## Scripts Disponíveis
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Servidor de desenvolvimento (porta 5173) |
+| `npm run build` | Build de produção |
+| `npm run preview` | Preview do build |
+| `npm run lint` | Verificação de código |
+| `npm test` | Executar testes (Vitest) |
 
-## What technologies are used for this project?
+## Rotas
 
-This project is built with:
+| Rota | Página | Descrição |
+|------|--------|-----------|
+| `/` | Index | Landing page |
+| `/auth` | Auth | Login / Cadastro |
+| `/catalogo` | Catalog | Catálogo de soluções |
+| `/dashboard` | Dashboard | Minhas solicitações (autenticado) |
+| `/nova-solicitacao` | NewRequest | Criar solicitação (autenticado) |
+| `/admin` | AdminPanel | Painel admin (admin) |
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Estrutura
 
-## How can I deploy this project?
+```
+src/
+├── api/              Cliente HTTP para o backend Spring Boot
+├── components/       Navbar, Footer, Hero, UI (shadcn)
+├── hooks/            useAuth, useToast, useMobile
+├── pages/            Index, Auth, Catalog, Dashboard, NewRequest, AdminPanel, NotFound
+├── lib/              Utilitários (cn)
+├── integrations/     (legado Supabase — mantido como referência)
+└── test/             Setup de testes
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Usuários de Teste
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+| Tipo | Email | Senha |
+|------|-------|-------|
+| Admin | admin@email.com | 123456 |
+| Usuário | maria@email.com | 123456 |

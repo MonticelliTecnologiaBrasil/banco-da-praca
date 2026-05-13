@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api, setToken } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +23,8 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const data = await api.auth.login(email, password);
+        setToken(data.token);
         toast({ title: "Login realizado com sucesso!" });
         navigate("/dashboard");
       } else {
@@ -33,19 +33,10 @@ const Auth = () => {
           setLoading(false);
           return;
         }
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName },
-            emailRedirectTo: window.location.origin,
-          },
-        });
-        if (error) throw error;
-        toast({
-          title: "Cadastro realizado!",
-          description: "Verifique seu e-mail para confirmar sua conta.",
-        });
+        const data = await api.auth.register(fullName, email, password);
+        setToken(data.token);
+        toast({ title: "Cadastro realizado!", description: "Bem-vindo ao Banco da Praça." });
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,24 +46,24 @@ type Solution = {
   id: string;
   name: string;
   slug: string;
-  short_description: string;
-  full_description: string;
+  shortDescription: string;
+  fullDescription: string;
   category: string;
   icon: string;
-  features: string[];
-  is_featured: boolean;
+  features: string;
+  isFeatured: boolean;
 };
 
 type Plan = {
   id: string;
-  solution_id: string;
+  solutionId: string;
   name: string;
-  price_monthly: number | null;
-  price_once: number | null;
-  billing_type: string;
-  features: string[];
-  is_popular: boolean;
-  sort_order: number;
+  priceMonthly: number | null;
+  priceOnce: number | null;
+  billingType: string;
+  features: string;
+  isPopular: boolean;
+  sortOrder: number;
 };
 
 const Catalog = () => {
@@ -76,13 +76,18 @@ const Catalog = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [solRes, planRes] = await Promise.all([
-        supabase.from("solutions").select("*").eq("is_active", true).order("name"),
-        supabase.from("solution_plans").select("*").order("sort_order"),
-      ]);
-      setSolutions((solRes.data as any[]) || []);
-      setPlans((planRes.data as any[]) || []);
-      setLoading(false);
+      try {
+        const [sols, pls] = await Promise.all([
+          api.solutions.list(),
+          api.plans.list(),
+        ]);
+        setSolutions(sols as Solution[]);
+        setPlans(pls as Plan[]);
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -92,14 +97,21 @@ const Catalog = () => {
     : solutions.filter((s) => s.category === activeCategory);
 
   const solutionPlans = (solutionId: string) =>
-    plans.filter((p) => p.solution_id === solutionId);
+    plans.filter((p) => p.solutionId === solutionId);
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
+  const parseFeatures = (features: string): string[] => {
+    try {
+      return JSON.parse(features);
+    } catch {
+      return [];
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-6 flex items-center justify-between h-16">
           <a href="/" className="text-xl font-bold font-display">Banco da Praça</a>
@@ -124,7 +136,6 @@ const Catalog = () => {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="bg-primary text-primary-foreground pb-12 pt-8">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-bold font-display mb-4">
@@ -136,7 +147,6 @@ const Catalog = () => {
         </div>
       </section>
 
-      {/* Filters */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border py-4">
         <div className="container mx-auto px-6">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -157,7 +167,6 @@ const Catalog = () => {
         </div>
       </div>
 
-      {/* Grid */}
       <main className="container mx-auto px-6 py-10">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -171,10 +180,7 @@ const Catalog = () => {
             <p className="text-muted-foreground">Nenhuma solução encontrada nesta categoria.</p>
           </div>
         ) : (
-          <motion.div
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence mode="popLayout">
               {filtered.map((sol) => (
                 <motion.div
@@ -195,7 +201,7 @@ const Catalog = () => {
                           {iconMap[sol.icon] || <Package className="w-6 h-6" />}
                         </div>
                         <div className="flex gap-2">
-                          {sol.is_featured && (
+                          {sol.isFeatured && (
                             <Badge className="bg-secondary text-secondary-foreground">
                               <Star className="w-3 h-3 mr-1" /> Destaque
                             </Badge>
@@ -210,7 +216,7 @@ const Catalog = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground text-sm mb-4">{sol.short_description}</p>
+                      <p className="text-muted-foreground text-sm mb-4">{sol.shortDescription}</p>
                       <div className="flex items-center gap-2">
                         {solutionPlans(sol.id).length > 0 && (
                           <span className="text-sm text-primary font-semibold">
@@ -218,7 +224,7 @@ const Catalog = () => {
                             {formatPrice(
                               Math.min(
                                 ...solutionPlans(sol.id).map(
-                                  (p) => p.price_monthly ?? p.price_once ?? Infinity
+                                  (p) => p.priceMonthly ?? p.priceOnce ?? Infinity
                                 )
                               )
                             )}
@@ -235,7 +241,6 @@ const Catalog = () => {
         )}
       </main>
 
-      {/* Solution Detail Modal */}
       <AnimatePresence>
         {selectedSolution && (
           <motion.div
@@ -252,7 +257,6 @@ const Catalog = () => {
               className="bg-background rounded-2xl max-w-4xl w-full shadow-2xl border border-border"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
               <div className="p-6 md:p-8 border-b border-border">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
@@ -276,15 +280,14 @@ const Catalog = () => {
                   </button>
                 </div>
                 <p className="text-muted-foreground mt-4 leading-relaxed">
-                  {selectedSolution.full_description}
+                  {selectedSolution.fullDescription}
                 </p>
               </div>
 
-              {/* Features */}
               <div className="p-6 md:px-8 border-b border-border">
                 <h3 className="text-lg font-semibold font-display text-foreground mb-4">Recursos inclusos</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {(selectedSolution.features as string[]).map((feature, i) => (
+                  {parseFeatures(selectedSolution.features).map((feature, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Check className="w-4 h-4 text-primary shrink-0" />
                       {feature}
@@ -293,7 +296,6 @@ const Catalog = () => {
                 </div>
               </div>
 
-              {/* Plans */}
               <div className="p-6 md:p-8">
                 <h3 className="text-lg font-semibold font-display text-foreground mb-6">Planos disponíveis</h3>
                 {solutionPlans(selectedSolution.id).length === 0 ? (
@@ -303,9 +305,9 @@ const Catalog = () => {
                     {solutionPlans(selectedSolution.id).map((plan) => (
                       <Card
                         key={plan.id}
-                        className={`relative ${plan.is_popular ? "border-primary shadow-md" : "border-border"}`}
+                        className={`relative ${plan.isPopular ? "border-primary shadow-md" : "border-border"}`}
                       >
-                        {plan.is_popular && (
+                        {plan.isPopular && (
                           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                             <Badge className="bg-primary text-primary-foreground">Mais popular</Badge>
                           </div>
@@ -313,18 +315,18 @@ const Catalog = () => {
                         <CardHeader className="text-center pb-2">
                           <CardTitle className="text-lg">{plan.name}</CardTitle>
                           <div className="mt-2">
-                            {plan.price_monthly != null && (
+                            {plan.priceMonthly != null && (
                               <div>
                                 <span className="text-3xl font-bold text-foreground">
-                                  {formatPrice(plan.price_monthly)}
+                                  {formatPrice(plan.priceMonthly)}
                                 </span>
                                 <span className="text-muted-foreground text-sm">/mês</span>
                               </div>
                             )}
-                            {plan.price_once != null && (
-                              <div className={plan.price_monthly != null ? "mt-1" : ""}>
-                                <span className={`font-bold text-foreground ${plan.price_monthly ? "text-lg" : "text-3xl"}`}>
-                                  {formatPrice(plan.price_once)}
+                            {plan.priceOnce != null && (
+                              <div className={plan.priceMonthly != null ? "mt-1" : ""}>
+                                <span className={`font-bold text-foreground ${plan.priceMonthly ? "text-lg" : "text-3xl"}`}>
+                                  {formatPrice(plan.priceOnce)}
                                 </span>
                                 <span className="text-muted-foreground text-sm"> único</span>
                               </div>
@@ -333,7 +335,7 @@ const Catalog = () => {
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-2 mb-6">
-                            {(plan.features as string[]).map((f, i) => (
+                            {parseFeatures(plan.features).map((f, i) => (
                               <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Check className="w-3.5 h-3.5 text-primary shrink-0" />
                                 {f}
@@ -342,7 +344,7 @@ const Catalog = () => {
                           </div>
                           <Button
                             className="w-full"
-                            variant={plan.is_popular ? "default" : "outline"}
+                            variant={plan.isPopular ? "default" : "outline"}
                             onClick={() => navigate("/auth")}
                           >
                             Contratar

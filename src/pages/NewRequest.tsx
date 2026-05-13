@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,7 +44,7 @@ const NewRequest = () => {
     title: "",
     category: "outro",
     description: "",
-    budget_range: "a_definir",
+    budgetRange: "a_definir",
     urgency: "normal",
   });
 
@@ -61,22 +61,21 @@ const NewRequest = () => {
     }
     setSubmitting(true);
 
-    const { error } = await supabase.from("solution_requests").insert({
-      user_id: user!.id,
-      title: form.title.trim(),
-      category: form.category,
-      description: form.description.trim(),
-      budget_range: form.budget_range,
-      urgency: form.urgency,
-    });
-
-    if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      await api.requests.create({
+        title: form.title.trim(),
+        category: form.category,
+        description: form.description.trim(),
+        budgetRange: form.budgetRange,
+        urgency: form.urgency,
+      });
       toast({ title: "Solicitação enviada!", description: "Nossa equipe irá analisar em breve." });
       navigate("/dashboard");
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   return (
@@ -138,8 +137,8 @@ const NewRequest = () => {
               <Label htmlFor="budget">Faixa de orçamento</Label>
               <select
                 id="budget"
-                value={form.budget_range}
-                onChange={(e) => setForm({ ...form, budget_range: e.target.value })}
+                value={form.budgetRange}
+                onChange={(e) => setForm({ ...form, budgetRange: e.target.value })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {budgetRanges.map((b) => (

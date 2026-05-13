@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { LogOut, Plus, AlertCircle } from "lucide-react";
 
 const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "Pendente", variant: "secondary" },
@@ -16,34 +16,27 @@ const statusMap: Record<string, { label: string; variant: "default" | "secondary
 };
 
 const Dashboard = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [requests, setRequests] = useState<any[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate("/auth");
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
-      fetchRequests();
+      api.requests.list()
+        .then(setRequests)
+        .catch(() => {})
+        .finally(() => setLoadingRequests(false));
     }
   }, [user]);
 
-  const fetchRequests = async () => {
-    const { data } = await supabase
-      .from("solution_requests")
-      .select("*")
-      .eq("user_id", user!.id)
-      .order("created_at", { ascending: false });
-    setRequests(data || []);
-    setLoadingRequests(false);
-  };
-
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">Carregando...</p>
@@ -100,7 +93,7 @@ const Dashboard = () => {
                       <div>
                         <CardTitle className="text-lg">{req.title}</CardTitle>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {req.category} • {new Date(req.created_at).toLocaleDateString("pt-BR")}
+                          {req.category} • {new Date(req.createdAt).toLocaleDateString("pt-BR")}
                         </p>
                       </div>
                       <Badge variant={status.variant}>{status.label}</Badge>
@@ -108,10 +101,10 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground line-clamp-2">{req.description}</p>
-                    {req.admin_notes && (
+                    {req.adminNotes && (
                       <div className="mt-3 p-3 bg-muted rounded-lg">
                         <p className="text-xs font-semibold text-foreground mb-1">Resposta da equipe:</p>
-                        <p className="text-sm text-muted-foreground">{req.admin_notes}</p>
+                        <p className="text-sm text-muted-foreground">{req.adminNotes}</p>
                       </div>
                     )}
                   </CardContent>
