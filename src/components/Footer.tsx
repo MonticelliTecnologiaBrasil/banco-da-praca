@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
-    <footer className="py-12 bg-foreground">
+    <footer className="py-12 bg-foreground dark:bg-card">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-8 text-primary-foreground/70">
           <div>
@@ -14,24 +16,24 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-primary-foreground mb-4 uppercase tracking-wider">Soluções</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Financeiro</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Gestão</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Automação</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Marketing</a></li>
+              <li><Link to="/catalogo" className="hover:text-primary-foreground transition-colors">Financeiro</Link></li>
+              <li><Link to="/catalogo" className="hover:text-primary-foreground transition-colors">Gestão</Link></li>
+              <li><Link to="/catalogo" className="hover:text-primary-foreground transition-colors">Automação</Link></li>
+              <li><Link to="/catalogo" className="hover:text-primary-foreground transition-colors">Marketing</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-primary-foreground mb-4 uppercase tracking-wider">Plataforma</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Catálogo</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Sob Demanda</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Pagamento PIX</a></li>
+              <li><Link to="/catalogo" className="hover:text-primary-foreground transition-colors">Catálogo</Link></li>
+              <li><Link to="/nova-solicitacao" className="hover:text-primary-foreground transition-colors">Sob Demanda</Link></li>
+              <li><Link to="/" className="hover:text-primary-foreground transition-colors">Pagamento PIX</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-primary-foreground mb-4 uppercase tracking-wider">Contato</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">contato@bancodapraca.com</a></li>
+              <li><a href="mailto:contato@bancodapraca.com" className="hover:text-primary-foreground transition-colors">contato@bancodapraca.com</a></li>
               <li><a href="#" className="hover:text-primary-foreground transition-colors">WhatsApp</a></li>
             </ul>
           </div>

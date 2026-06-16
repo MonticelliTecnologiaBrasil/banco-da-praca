@@ -1,5 +1,6 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Layers, Wrench } from "lucide-react";
+import { Layers, Wrench } from "lucide-react";
 
 const CTA = () => {
   return (
@@ -21,14 +22,20 @@ const CTA = () => {
             Explore nosso catálogo de soluções prontas ou descreva seu desafio e receba uma proposta personalizada.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-secondary text-secondary-foreground font-semibold text-lg hover:opacity-90 transition-opacity">
+            <Link
+              to="/catalogo"
+              className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg bg-secondary text-secondary-foreground font-semibold text-lg hover:opacity-90 transition-opacity"
+            >
               <Layers className="w-5 h-5" />
               Ver catálogo
-            </button>
-            <button className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg border border-primary-foreground/30 text-primary-foreground font-semibold text-lg hover:bg-primary-foreground/10 transition-colors">
+            </Link>
+            <Link
+              to="/nova-solicitacao"
+              className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-lg border border-primary-foreground/30 text-primary-foreground font-semibold text-lg hover:bg-primary-foreground/10 transition-colors"
+            >
               <Wrench className="w-5 h-5" />
               Solicitar sob demanda
-            </button>
+            </Link>
           </div>
         </motion.div>
       </div>

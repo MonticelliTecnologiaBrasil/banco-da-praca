@@ -3,7 +3,7 @@ import { QrCode, Zap, CheckCircle } from "lucide-react";
 
 const PixSection = () => {
   return (
-    <section className="py-24 bg-background">
+    <section id="pix" className="py-24 bg-background">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
           <motion.div
