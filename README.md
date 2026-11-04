@@ -42,8 +42,24 @@ npm run dev
 
 O frontend sobe em `http://localhost:5173`.
 
-> O Vite está configurado com CORS permitindo `localhost:5173` → `localhost:8080`.
-> Nenhum proxy ou configuração adicional é necessária.
+> O backend precisa permitir a origem do frontend no CORS (`http://localhost:5173` em dev).
+
+## Build de Produção
+
+O Vite injeta `VITE_API_BASE_URL` **em tempo de build**, não em tempo de execução. Defina a URL pública do backend (com o prefixo `/api/v1`) antes de gerar o bundle:
+
+```bash
+VITE_API_BASE_URL=https://api.seudominio.com/api/v1 npm run build
+```
+
+Com Docker:
+
+```bash
+docker build --build-arg VITE_API_BASE_URL=https://api.seudominio.com/api/v1 -t banco-da-praca .
+```
+
+> Definir a variável só no ambiente do container/servidor **não funciona**: ela já foi embutida no bundle durante o build.
+> O backend também precisa liberar a origem do frontend no CORS (incluindo o preflight `OPTIONS` e os headers `Authorization` e `Content-Type`).
 
 ## Scripts Disponíveis
 

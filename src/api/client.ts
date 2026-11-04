@@ -1,4 +1,16 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+const ENV_API_BASE = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/+$/, "");
+
+// Em dev, o backend roda em localhost:8080. Em produção, sem VITE_API_BASE_URL
+// definida no build, usamos o mesmo domínio da aplicação (/api/v1) para não
+// embutir "localhost" no bundle final.
+const API_BASE = ENV_API_BASE || (import.meta.env.DEV ? "http://localhost:8080/api/v1" : "/api/v1");
+
+if (!ENV_API_BASE && !import.meta.env.DEV) {
+  console.warn(
+    "[api] VITE_API_BASE_URL não foi definida no build. Usando /api/v1 (mesma origem). " +
+      "Defina a URL pública do backend antes de gerar o build de produção."
+  );
+}
 
 export function getToken(): string | null {
   return localStorage.getItem("token");
@@ -37,10 +49,18 @@ async function request<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch {
+    // fetch só lança em falha de rede/CORS — a URL ajuda a diagnosticar o build.
+    throw new Error(
+      `Não foi possível conectar à API em ${API_BASE}. Verifique a URL configurada e o CORS do backend.`
+    );
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));

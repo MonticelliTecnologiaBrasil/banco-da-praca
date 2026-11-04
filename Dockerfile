@@ -8,6 +8,13 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+
+# Vite injeta variáveis VITE_* em tempo de BUILD, não de execução.
+# Passe a URL pública do backend ao gerar a imagem:
+#   docker build --build-arg VITE_API_BASE_URL=https://api.seudominio.com/api/v1 .
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 RUN pnpm run build   # gera a pasta dist/
 
 FROM node:18-alpine
