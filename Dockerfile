@@ -1,10 +1,12 @@
 FROM node:18-alpine AS builder
 
-RUN npm install -g pnpm
+# Pina o pnpm 10: o "latest" (pnpm 12+) exige Node mais novo que o node:18.
+RUN npm install -g pnpm@10
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+# pnpm-workspace.yaml contém a allowlist de scripts de build (onlyBuiltDependencies).
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
