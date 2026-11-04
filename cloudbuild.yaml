@@ -1,0 +1,59 @@
+# Cloud Build: build da imagem do frontend (Vite) e deploy no Cloud Run.
+#
+# Execute a partir da raiz do repositório:
+#   gcloud builds submit --config cloudbuild.yaml \
+#     --substitutions=_VITE_API_BASE_URL=https://api.seudominio.com/api/v1
+#
+# A URL da API é injetada em TEMPO DE BUILD (Vite). Trocar a variável só no
+# Cloud Run (--set-env-vars) NÃO funciona.
+
+substitutions:
+  _SERVICE: banco-da-praca
+  _REGION: us-central1
+  # URL pública do backend, incluindo o prefixo /api/v1.
+  _VITE_API_BASE_URL: https://backend-banco-da-praca-1009209928223.us-central1.run.app/api/v1
+
+images:
+  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/apps/${_SERVICE}:${SHORT_SHA}"
+
+steps:
+  # 1. Build (passa a URL da API como build arg para o Vite)
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --build-arg
+      - "VITE_API_BASE_URL=${_VITE_API_BASE_URL}"
+      - -t
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/apps/${_SERVICE}:${SHORT_SHA}"
+      - -t
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/apps/${_SERVICE}:latest"
+      - .
+
+  # 2. Push para o Artifact Registry
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/apps/${_SERVICE}"
+
+  # 3. Deploy no Cloud Run
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - "${_SERVICE}"
+      - --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/apps/${_SERVICE}:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+      - --port=8080
+      - --memory=256Mi
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s
