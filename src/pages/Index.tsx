@@ -6,6 +6,7 @@ import PixSection from "@/components/PixSection";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 
+
 const Index = () => {
   return (
     <div className="min-h-screen">
